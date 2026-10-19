@@ -10,5 +10,5 @@
 - Drafted initial topic statement and seed literature list.
 
 ## Blockers / Next Steps
-- **Professor Approval:** Email sent [Insert Date]. Awaiting confirmation on U.S. + China scope.
+- - **Professor Approval:** Approved via email on 19/10/2026. Scope confirmed: U.S. + China.
 - **China Data (PKU):** Need to test access to PKU Guanghua factor data before Session 6.
