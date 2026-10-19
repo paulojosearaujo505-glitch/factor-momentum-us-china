@@ -21,3 +21,17 @@ pip install -r requirements.txt
 python src/download_us.py
 python src/download_china.py
 python src/build_panel.py
+
+## Repository structure
+- `src/`: Source code for data downloads and strategy implementation
+- `data/`: Data files (raw and processed are gitignored)
+- `outputs/`: Generated tables and figures
+- `docs/`: Methodology and provenance documentation
+- `drafts/`: Paper drafts and topic statements
+- `notes/`: Session notes and literature summaries
+
+## License
+MIT
+
+## Contact
+Paulo Jose Araujo, University of Macau, FINC7010-001
