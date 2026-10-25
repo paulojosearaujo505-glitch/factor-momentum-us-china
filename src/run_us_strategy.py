@@ -14,22 +14,36 @@ def run_us():
     factors = ['Mkt-RF', 'SMB', 'HML', 'RMW', 'CMA']
     df_factors = df[factors]
     
-    # Run FMOM engine
+    # Run FMOM engine on full data
     print("Running FMOM Strategy on U.S. Data...")
     strat_ret, weights = calculate_fmom(df_factors, lookback=12)
     
-    # Calculate performance metrics
+    # --- 1. FULL SAMPLE METRICS ---
     ann_ret = annualized_return(strat_ret)
     ann_vol = annualized_volatility(strat_ret)
     sharpe = sharpe_ratio(strat_ret)
     mdd = max_drawdown(strat_ret)
     
-    # Print results
     print("\n--- Full U.S. Sample (1963-Present) ---")
     print(f"Annualized Return: {ann_ret*100:.2f}%")
     print(f"Annualized Volatility: {ann_vol*100:.2f}%")
     print(f"Sharpe Ratio: {sharpe:.2f}")
     print(f"Max Drawdown: {mdd*100:.2f}%")
+    
+    # --- 2. RECENT 5-YEAR SAMPLE (Matched Window) ---
+    # We slice the data from 2021 onwards to match the China data
+    strat_ret_recent = strat_ret['2021-01-01':]
+    
+    ann_ret_rec = annualized_return(strat_ret_recent)
+    ann_vol_rec = annualized_volatility(strat_ret_recent)
+    sharpe_rec = sharpe_ratio(strat_ret_recent)
+    mdd_rec = max_drawdown(strat_ret_recent)
+    
+    print("\n--- Matched U.S. Window (2021-2025) ---")
+    print(f"Annualized Return: {ann_ret_rec*100:.2f}%")
+    print(f"Annualized Volatility: {ann_vol_rec*100:.2f}%")
+    print(f"Sharpe Ratio: {sharpe_rec:.2f}")
+    print(f"Max Drawdown: {mdd_rec*100:.2f}%")
     
     # Save the strategy returns to outputs for later plotting
     os.makedirs('outputs/tables', exist_ok=True)
