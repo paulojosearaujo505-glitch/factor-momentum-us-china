@@ -13,7 +13,13 @@ Does a strategy that goes long factors with positive trailing 12-month returns a
 12-month lookback, monthly rebalance, equal-weighted long/short across six factors: Mkt-RF, SMB, HML, RMW, CMA, MOM.
 
 ## Key results
-*To be added in Session 13.*
+*Preliminary U.S. results (1963–Present):*
+- **Annualized Return:** 6.19%
+- **Annualized Volatility:** 12.49%
+- **Sharpe Ratio:** 0.50
+- **Max Drawdown:** -40.46%
+
+![U.S. Equity Curve](outputs/figures/us_fmom_equity_curve.png)
 
 ## How to reproduce
 ```bash
