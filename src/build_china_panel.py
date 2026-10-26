@@ -12,13 +12,16 @@ def build_china_panel():
         return
 
     print(f"Reading raw data from {raw_path}...")
-    df = pd.read_excel(raw_path)
+    # The descriptive column names are on the second row (index 1)
+    df = pd.read_excel(raw_path, header=1)
+    
+    # Drop the first row which just says "No Unit"
+    df = df.iloc[1:].copy()
     
     # 1. Filter for the All-A-Shares market code (P9709) to avoid duplicates
-    # If the final dataset uses a different code for the broad market, we will change this line.
     df = df[df['Market Type Code'] == 'P9709'].copy()
     
-    # 2. Map CSMAR column names to our standard names (using Negotiable Shares)
+    # 2. Map CSMAR column names to our standard names
     column_mapping = {
         'Trading Month': 'Date',
         'Market Risk Premium Factor (Weighted Average Value of Negotiable Shares)': 'Mkt-RF',
@@ -33,12 +36,15 @@ def build_china_panel():
     target_factors = ['Date', 'Mkt-RF', 'SMB', 'HML', 'RMW', 'CMA']
     df = df[target_factors]
     
-    # 4. Format the Date column and set as index
+    # 4. Format the Date column
     df['Date'] = pd.to_datetime(df['Date'])
-    df = df.drop_duplicates(subset=['Date'], keep='first')
+    
+    # 5. CSMAR gives us 3 rows per month (Portfolio Types 1, 2, 3). 
+    # We group by Date and take the mean to get a single clean factor return per month.
+    df = df.groupby('Date').mean().reset_index()
     df.set_index('Date', inplace=True)
     
-    # 5. Save the clean data
+    # 6. Save the clean data
     os.makedirs('data/processed', exist_ok=True)
     output_path = 'data/processed/china_factors.csv'
     df.to_csv(output_path)
