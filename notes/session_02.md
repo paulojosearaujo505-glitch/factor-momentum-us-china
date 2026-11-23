@@ -1,6 +1,6 @@
 # Session 2 Notes - Core Literature
 
-**Date:** [Insert Date]
+**Date:** 21/10/2026
 
 ## 1. Ehsani & Linnainmaa (2022) - Factor Momentum and the Momentum Factor
 - **Core Mechanism:** [Write 2-3 sentences explaining WHY factor returns exhibit momentum. What behavioral or structural reason do the authors give?]
