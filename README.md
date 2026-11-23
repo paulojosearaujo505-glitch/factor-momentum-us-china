@@ -7,7 +7,7 @@ Does a strategy that goes long factors with positive trailing 12-month returns a
 
 ## Data
 - **U.S.**: Kenneth French Data Library, monthly, 1963–2025.
-- **China**: [PKU Guanghua / CSMAR — confirm in Session 6], monthly.
+- **China**:  CSMAR, Monthly 2021-2025
 
 ## Method
 12-month lookback, monthly rebalance, equal-weighted long/short across six factors: Mkt-RF, SMB, HML, RMW, CMA, MOM.
