@@ -1,82 +1,77 @@
+
 """
-Plots the cumulative return (equity curve) of the U.S. and China FMOM strategies.
+Plots the cumulative return (growth of $1) of the U.S. and China FMOM strategies.
+
+This file is self-contained: it reads the cleaned factor data, runs the
+corrected FMOM strategy itself, and saves both charts. It does not depend on
+the CSV files written by run_us_strategy.py or run_china_strategy.py.
+
+Run from the project's main folder:
+    python src/plot_results.py
 """
-import pandas as pd
-import matplotlib.pyplot as plt
 import os
 
-def plot_us_fmom():
-    filepath = 'outputs/tables/us_fmom_returns.csv'
-    
-    # Check if the data exists before trying to plot
-    if not os.path.exists(filepath):
-        print("Error: Run run_us_strategy.py first to generate the returns.")
-        return
-        
-    # Load strategy returns
-    df = pd.read_csv(filepath, index_col=0, parse_dates=True)
-    returns = df.iloc[:, 0]
-    
-    # Calculate cumulative return (Growth of $1)
-    cumulative_returns = (1 + returns).cumprod()
-    
-    # Create the figure and plot the U.S. line
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(cumulative_returns.index, cumulative_returns, color='darkblue', linewidth=1.5)
-    
-    # Add titles and formatting
-    ax.set_title('U.S. Factor Momentum Strategy: Growth of $1 (1963 - Present)', fontsize=14, fontweight='bold')
-    ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Cumulative Growth', fontsize=12)
-    ax.grid(True, linestyle='--', alpha=0.6)
-    
-    # Add a horizontal break-even line at $1.00
-    ax.axhline(y=1.0, color='black', linestyle='-', linewidth=1, alpha=0.5)
-    
-    plt.tight_layout()
-    
-    # Save the figure to the outputs folder
-    output_path = 'outputs/figures/us_fmom_equity_curve.png'
-    plt.savefig(output_path, dpi=300)
-    print(f"Success! U.S. Figure saved to {output_path}")
-    plt.close()
+import matplotlib
+matplotlib.use('Agg')  # save charts to files without needing a screen
+import matplotlib.pyplot as plt
+import pandas as pd
 
-def plot_china_fmom():
-    filepath = 'outputs/tables/china_fmom_returns.csv'
-    
-    # Check if the data exists before trying to plot
-    if not os.path.exists(filepath):
-        print("Error: Run run_china_strategy.py first to generate the returns.")
-        return
+from fmom import calculate_fmom
 
-    # Load strategy returns
-    df = pd.read_csv(filepath, index_col=0, parse_dates=True)
-    returns = df.iloc[:, 0]
-    
-    # Calculate cumulative return (Growth of $1)
-    cumulative_returns = (1 + returns).cumprod()
-    
-    # Create the figure and plot the China line
+FACTORS = ['Mkt-RF', 'SMB', 'HML', 'RMW', 'CMA']
+SAMPLE_END = '2025-12-31'  # last month used in the paper
+LOOKBACK = 12
+OUTPUT_DIR = 'outputs/figures'
+
+
+def load_strategy_returns(data_path):
+    """Load cleaned factor data and return monthly FMOM returns up to SAMPLE_END."""
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(
+            f"{data_path} not found. Run the build_*_panel.py scripts first."
+        )
+    factors = pd.read_csv(data_path, index_col='Date', parse_dates=True)[FACTORS]
+    returns, _ = calculate_fmom(factors, lookback=LOOKBACK)
+    return returns[:SAMPLE_END]
+
+
+def plot_growth_of_dollar(returns, market_name, color, output_file):
+    """Plot and save the growth of $1 invested in the strategy."""
+    cumulative = (1 + returns).cumprod()
+    start, end = returns.index[0], returns.index[-1]
+
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(cumulative_returns.index, cumulative_returns, color='darkred', linewidth=1.5)
-    
-    # Add titles and formatting
-    ax.set_title('China Factor Momentum Strategy: Growth of $1 (2022 - 2025)', fontsize=14, fontweight='bold')
+    ax.plot(cumulative.index, cumulative, color=color, linewidth=1.5)
+
+    ax.set_title(
+        f'{market_name} Factor Momentum Strategy: Growth of $1 ({start:%Y}–{end:%Y})',
+        fontsize=14, fontweight='bold'
+    )
     ax.set_xlabel('Year', fontsize=12)
-    ax.set_ylabel('Cumulative Growth', fontsize=12)
+    ax.set_ylabel('Cumulative Growth ($)', fontsize=12)
     ax.grid(True, linestyle='--', alpha=0.6)
-    
-    # Add a horizontal break-even line at $1.00
+
+    # Break-even line at $1.00
     ax.axhline(y=1.0, color='black', linestyle='-', linewidth=1, alpha=0.5)
-    
+
     plt.tight_layout()
-    
-    # Save the figure to the outputs folder
-    output_path = 'outputs/figures/china_fmom_equity_curve.png'
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    output_path = os.path.join(OUTPUT_DIR, output_file)
     plt.savefig(output_path, dpi=300)
-    print(f"Success! China Figure saved to {output_path}")
-    plt.close()
+    plt.close(fig)
+
+    print(f"{market_name} chart saved to {output_path}")
+    print(f"  Covers {start:%Y-%m} to {end:%Y-%m} ({len(returns)} months), "
+          f"$1 grows to ${cumulative.iloc[-1]:.2f}\n")
+
+
+def main():
+    us_returns = load_strategy_returns('data/processed/us_factors.csv')
+    plot_growth_of_dollar(us_returns, 'U.S.', 'darkblue', 'us_fmom_equity_curve.png')
+
+    china_returns = load_strategy_returns('data/processed/china_factors.csv')
+    plot_growth_of_dollar(china_returns, 'China', 'darkred', 'china_fmom_equity_curve.png')
+
 
 if __name__ == "__main__":
-    plot_us_fmom()
-    plot_china_fmom()
+    main()
