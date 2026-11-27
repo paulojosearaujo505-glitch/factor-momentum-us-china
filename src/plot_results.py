@@ -1,13 +1,6 @@
 
 """
 Plots the cumulative return (growth of $1) of the U.S. and China FMOM strategies.
-
-This file is self-contained: it reads the cleaned factor data, runs the
-corrected FMOM strategy itself, and saves both charts. It does not depend on
-the CSV files written by run_us_strategy.py or run_china_strategy.py.
-
-Run from the project's main folder:
-    python src/plot_results.py
 """
 import os
 
